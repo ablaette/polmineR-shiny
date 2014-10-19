@@ -1,7 +1,7 @@
 library(shiny)
-library(driller)
+library(polmineR)
 
-partitionObjects <- driller:::.getClassObjects('.GlobalEnv', 'partition')
+partitionObjects <- polmineR.shiny:::.getClassObjects('.GlobalEnv', 'partition')
 
 shinyServer(function(input, output, session) {
   observe({
@@ -13,7 +13,7 @@ shinyServer(function(input, output, session) {
     queries <- vapply(queries, function(x) gsub('^\\s+', '', x), FUN.VALUE="character", USE.NAMES=FALSE)
     queries <- vapply(queries, function(x) gsub('\\s+$', '', x), FUN.VALUE="character", USE.NAMES=FALSE)
     aha <- dispersion(
-      partition=partitionObjects[[input$partitionObject]],
+      object=partitionObjects[[input$partitionObject]],
       query=queries,
       dim=input$dim,
       pAttribute=input$pAttribute

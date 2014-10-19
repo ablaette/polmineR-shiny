@@ -1,25 +1,45 @@
 library(shiny)
-library(driller)
+library(polmineR)
 
-partitionObjects <- driller:::.getClassObjects('.GlobalEnv', 'partition')
+partitionObjects <- polmineR.shiny:::.getClassObjects('.GlobalEnv', 'partition')
 
 shinyServer(function(input, output) {
   output$c1 <- renderText({input@coi})
   output$c2 <- renderText({input@ref})
   output$table <- renderDataTable({
     input$goButton
-    isolate(
-      keyness <- keyness(
-        coi=partitionObjects[[input$coi]],
-        ref=partitionObjects[[input$ref]],
-        pattribute=input$pAttribute,
-        included=input$included,
-        min.significance=input$minSignificance,
-        min.frequency=input$minFrequency,
+    isolate({
+      result <- keyness(
+        x=partitionObjects[[input$coi]],
+        y=partitionObjects[[input$ref]],
+        pAttribute=input$pAttribute,
+        minFrequency=input$minFrequency,
+        included=as.logical(input$included),
         verbose=FALSE,
-        pos.filter=NULL
+        digits=2
         )
-      )
-    cbind(token=rownames(keyness@stat), keyness@stat)
+      if (input$applyPosFilter == FALSE){
+        result <- trim(
+          result,
+          minSignificance=input$minSignificance,
+          minFrequency=input$minFrequency,
+          filterType=input$filterType
+        )
+      } else {
+        result <- trim(
+          result,
+          minSignificance=input$minSignificance,
+          minFrequency=input$minFrequency
+        )      
+        result <- enrich(result, addPos=TRUE)
+        result <- trim(
+          result,
+          posFilter=unlist(strsplit(input$posFilter, "\\s")),
+          filterType=input$filterType
+        )      
+      }
+      result
+    })
+    cbind(token=rownames(result@stat), result@stat)
     })
 })

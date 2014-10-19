@@ -1,12 +1,12 @@
 library(shiny)
-library(driller)
+library(polmineR)
 
-drillingControls <- getFromNamespace('drillingControls', 'driller')
-partitionObjects <- driller:::.getClassObjects('.GlobalEnv', 'partition')
+drillingControls <- getFromNamespace('drillingControls', 'polmineR')
+partitionObjects <- polmineR.shiny:::.getClassObjects('.GlobalEnv', 'partition')
 
 shinyUI(pageWithSidebar(
   
-  headerPanel("Explore distribution"),
+  headerPanel("dispersion analysis"),
   
   sidebarPanel(
     selectInput("partitionObject", "Partition:", choices=names(partitionObjects)),
@@ -16,6 +16,7 @@ shinyUI(pageWithSidebar(
     selectInput("cols", "Colums:", choices=c("text_party")),
     selectInput("what", "Table to show:", choices=c("rel", "abs", "partitions"), selecte="rel"),
     sliderInput("rex", "Bubble expansion:", min=0, max=2, value=1, round=FALSE, step=0.1),
+    br(),
     submitButton("Update")
     ),
   

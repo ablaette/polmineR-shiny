@@ -1,7 +1,7 @@
 library(shiny)
-library(driller)
+library(polmineR)
 
-partitionObjects <- driller:::.getClassObjects('.GlobalEnv', 'partition')
+partitionObjects <- polmineR.shiny:::.getClassObjects('.GlobalEnv', 'partition')
 
 shinyServer(function(input, output, session) {
   observe({
@@ -10,12 +10,10 @@ shinyServer(function(input, output, session) {
     updateSelectInput(session, "cols", choices=cqi_attributes(p@corpus, 's'))
   })
   
-  output$what <- renderText({
-    paste('Analysing distribution', input$rows, input$query, input$cols)
-     })
+  output$what <- renderText({paste(input$query)})
   data <- reactive({
     aha <- dispersion(
-      partition=partitionObjects[[input$partitionObject]],
+      object=partitionObjects[[input$partitionObject]],
       query=input$query,
       dim=c(input$rows, input$cols),
       pAttribute=input$pAttribute
@@ -23,7 +21,7 @@ shinyServer(function(input, output, session) {
     aha
   })
   output$tab <- renderDataTable({
-    tab <- slot(data(), "total")[[input$what]]
+    tab <- slot(data(), input$what)
     if (input$what == "rel") {
       tab <- round(tab*100000,2)
     }
@@ -31,6 +29,6 @@ shinyServer(function(input, output, session) {
     tab
     })
    output$plot <- renderPlot({
-     bubblegraph(slot(data(), "total")[[input$what]], rex=input$rex)
+     bubblegraph(slot(data(), input$what), rex=input$rex)
    })  
 })

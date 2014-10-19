@@ -1,8 +1,8 @@
 library(shiny)
-library(driller)
+library(polmineR)
 
-drillingControls <- getFromNamespace('drillingControls', 'driller')
-partitionObjects <- driller:::.getClassObjects('.GlobalEnv', 'partition')
+drillingControls <- getFromNamespace('drillingControls', 'polmineR')
+partitionObjects <- polmineR.shiny:::.getClassObjects('.GlobalEnv', 'partition')
 
 shinyUI(pageWithSidebar(
   

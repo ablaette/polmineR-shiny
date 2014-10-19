@@ -1,7 +1,7 @@
 library(shiny)
-library(driller)
+library(polmineR)
 
-partitionObjects <- driller:::.getClassObjects('.GlobalEnv', 'partition')
+partitionObjects <- polmineR.shiny:::.getClassObjects('.GlobalEnv', 'partition')
 
 shinyServer(function(input, output, session) {
   observe({
@@ -10,7 +10,7 @@ shinyServer(function(input, output, session) {
   })
   data <- reactive({
     aha <- dispersion(
-      partition=partitionObjects[[input$partitionObject]],
+      object=partitionObjects[[input$partitionObject]],
       query=input$query,
       dim=input$dim,
       pAttribute=input$pAttribute
@@ -26,7 +26,7 @@ shinyServer(function(input, output, session) {
     })
   output$plot <- renderPlot({
     par(mfrow=c(1,2), las=2, mar=c(10,2.5,3,0.5))
-    barplot((data()$rel*100000), main="relative frequencies")
-    barplot(data()$abs, main="absolute frequencies")
+    barplot((data()$rel*100000), main="relative frequencies", names.arg=rownames(data()))
+    barplot(data()$abs, main="absolute frequencies", names.arg=rownames(data()))
     })  
 })

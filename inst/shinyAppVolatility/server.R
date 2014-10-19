@@ -1,7 +1,7 @@
 library(shiny)
-library(driller)
+library(polmineR)
 
-partitionObjects <- driller:::.getClassObjects('.GlobalEnv', 'partition')
+partitionObjects <- polmineR.shiny:::.getClassObjects('.GlobalEnv', 'partition')
 
 shinyServer(function(input, output, session) {
   a <- reactive({

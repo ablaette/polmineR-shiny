@@ -1,8 +1,8 @@
 library(shiny)
-library(driller)
+library(polmineR)
 
-drillingControls <- getFromNamespace('drillingControls', 'driller')
-partitionObjects <- driller:::.getClassObjects('.GlobalEnv', 'partition')
+drillingControls <- getFromNamespace('drillingControls', 'polmineR')
+partitionObjects <- polmineR.shiny:::.getClassObjects('.GlobalEnv', 'partition')
 
 shinyUI(pageWithSidebar(
   headerPanel("Comparing corpora: Keyness"),
@@ -11,9 +11,11 @@ shinyUI(pageWithSidebar(
     selectInput("ref", "Partition:", choices=names(partitionObjects), selected=names(partitionObjects)[2]),
     selectInput("pAttribute", "P-Attribute:", choices=c("word", "pos", "lemma"), selected=drillingControls$pAttribute),
     selectInput("included", "Is COI part of RC:", choices=c("TRUE", "FALSE"), selected=FALSE),
-    numericInput("minSignificance", "Minimum Significance", value=drillingControls$minSignificance),
+    selectInput("minSignificance", "Minimum Significance", choices=c(0, 3.84, 7.33, 10.84), selected=3.84),
     numericInput("minFrequency", "Minimum frequency:", value=drillingControls$minFrequency),
-    textInput("posFilter", "POS-based filter:", value=""),
+    checkboxInput("applyPosFilter", "Use POS-based filter", value=FALSE),
+    textInput("posFilter", "POS-based filter:", value="NN"),
+    selectInput("filterType", "Include/exclude:", choices=c("include", "exclude"), selected="include"),
     br(),
     actionButton("goButton", "Go!")
     ),

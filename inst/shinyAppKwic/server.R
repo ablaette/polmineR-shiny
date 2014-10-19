@@ -16,19 +16,16 @@ shinyServer(function(input, output, session) {
   output$table <- renderDataTable({
     input$goButton
     isolate(
-      ctext <- context(
+      kwicObject <- kwic(
         object=partitionObjects[[input$partitionObject]],
         query=input$node,
         pAttribute=input$pAttribute,
         leftContext=input$leftContext,
         rightContext=input$rightContext,
-        minSignificance=input$minSignificance,
-        posFilter=unlist(strsplit(input$posFilter, ' '))
+        collocate=input$collocate,
+        meta=unlist(strsplit(input$meta," "))
         )
       )
-    ctext@stat[,"expCoi"] <- round(ctext@stat[,"expCoi"], 2)
-    ctext@stat[,"expCorpus"] <- round(ctext@stat[,"expCoi"], 2)
-    ctext@stat[,"ll"] <- round(ctext@stat[,"ll"], 2)    
-    cbind(token=rownames(ctext@stat), ctext@stat)
+    kwicObject@table
     })
 })
