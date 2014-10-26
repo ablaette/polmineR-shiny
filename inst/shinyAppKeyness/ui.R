@@ -1,14 +1,25 @@
 library(shiny)
-library(polmineR)
+foo <- capture.output(library(polmineR))
 
 drillingControls <- getFromNamespace('drillingControls', 'polmineR')
-partitionObjects <- polmineR.shiny:::.getClassObjects('.GlobalEnv', 'partition')
+# partitionObjects <- polmineR.shiny:::.getClassObjects('.GlobalEnv', 'partition')
 
 shinyUI(pageWithSidebar(
-  headerPanel("Comparing corpora: Keyness"),
+  headerPanel("Keyness"),
   sidebarPanel(
-    selectInput("coi", "Corpus of interest:", choices=names(partitionObjects), selected=names(partitionObjects)[1]),
-    selectInput("ref", "Partition:", choices=names(partitionObjects), selected=names(partitionObjects)[2]),
+    actionButton("partitionButton", "refresh partitions"),
+    actionButton("goButton", "Go!"),
+    br(),br(),
+    selectInput(
+      "coi", "Corpus of interest:",
+      choices=gsub("^(.*)\\.RData$", "\\1", list.files(drillingControls$partitionDir)),
+      selected=gsub("^(.*)\\.RData$", "\\1", list.files(drillingControls$partitionDir))[1]
+      ),
+    selectInput(
+      "ref", "Partition:",
+      choices=gsub("^(.*)\\.RData$", "\\1", list.files(drillingControls$partitionDir)),
+      selected=gsub("^(.*)\\.RData$", "\\1", list.files(drillingControls$partitionDir))[2]
+      ),
     selectInput("pAttribute", "P-Attribute:", choices=c("word", "pos", "lemma"), selected=drillingControls$pAttribute),
     selectInput("included", "Is COI part of RC:", choices=c("TRUE", "FALSE"), selected=FALSE),
     selectInput("minSignificance", "Minimum Significance", choices=c(0, 3.84, 7.33, 10.84), selected=3.84),

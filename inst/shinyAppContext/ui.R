@@ -2,14 +2,20 @@ library(shiny)
 library(polmineR)
 
 drillingControls <- getFromNamespace('drillingControls', 'polmineR')
-partitionObjects <- polmineR.shiny:::.getClassObjects('.GlobalEnv', 'partition')
+# partitionObjects <- polmineR.shiny:::.getClassObjects('.GlobalEnv', 'partition')
 
 shinyUI(pageWithSidebar(
   
   headerPanel("Context analysis"),
   
   sidebarPanel(
-    selectInput("partitionObject", "Partition:", choices=names(partitionObjects)),
+    actionButton("partitionButton", "refresh partitions"),
+    actionButton("goButton", "Go!"),
+    br(), br(),
+    selectInput(
+      "partitionObject", "Partition:",
+      gsub("^(.*)\\.RData$", "\\1", list.files(drillingControls$partitionDir))
+      ),
     textInput("node", "Node:", value="Suche"),
     selectInput("pAttribute", "Select p-attribute:", choices=c("word", "pos", "lemma"), selected=drillingControls$pAttribute),
     numericInput("leftContext", "Left context:", value=drillingControls$leftContext),

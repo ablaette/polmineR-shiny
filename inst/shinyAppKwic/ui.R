@@ -2,7 +2,7 @@ library(shiny)
 library(polmineR)
 
 drillingControls <- getFromNamespace('drillingControls', 'polmineR')
-partitionObjects <- polmineR.shiny:::.getClassObjects('.GlobalEnv', 'partition')
+# partitionObjects <- polmineR.shiny:::.getClassObjects('.GlobalEnv', 'partition')
 
 shinyUI(fluidPage(
   
@@ -15,10 +15,17 @@ shinyUI(fluidPage(
       ")
     )),
   
-  headerPanel("PolMine-Concordancer"),
+  headerPanel("KWIC"),
   
   sidebarPanel(
-    selectInput("partitionObject", "Partition:", choices=names(partitionObjects)),
+    actionButton("partitionButton", "refresh partitions"),
+    actionButton("goButton", "Go!"),
+    br(),br(),
+    selectInput(
+      "partitionObject", "Partition:",
+      choices=gsub("^(.*)\\.RData$", "\\1", list.files(drillingControls$partitionDir))
+#      choices=names(partitionObjects)
+      ),
     textInput("node", "Node:", value="Suche"),
     selectInput("pAttribute", "Select p-attribute:", choices=c("word", "pos", "lemma"), selected=drillingControls$pAttribute),
     numericInput("leftContext", "Left context:", value=drillingControls$leftContext),

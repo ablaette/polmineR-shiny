@@ -4,26 +4,29 @@ library(polmineR)
 partitionObjects <- polmineR.shiny:::.getClassObjects('.GlobalEnv', 'partition')
 
 shinyServer(function(input, output, session) {
+  observe({
+    foo <- input$partitionButton
+    availablePartitions <- gsub("^(.*)\\.RData$", "\\1", list.files(drillingControls$partitionDir))
+    updateSelectInput(session, "partitionObject", choices=availablePartitions)
+  })
   output$query <- renderText({
     paste(
       'Query: "',
       input$node, '"',
-      ' (tf=',
-      as.character(tf(partitionObjects[[input$partitionObject]], input$node)[1, paste(input$pAttribute, "Abs", sep="")]),
-      ')',
       sep='')
      })
   output$table <- renderDataTable({
     input$goButton
     isolate(
       ctext <- context(
-        object=partitionObjects[[input$partitionObject]],
+        object=get(load(paste(drillingControls$partitionDir, "/", input$partitionObject, ".RData", sep=""))),
         query=input$node,
         pAttribute=input$pAttribute,
         leftContext=input$leftContext,
         rightContext=input$rightContext,
         minSignificance=input$minSignificance,
-        posFilter=unlist(strsplit(input$posFilter, ' '))
+        posFilter=unlist(strsplit(input$posFilter, ' ')),
+        verbose=FALSE
         )
       )
     ctext@stat[,"expCoi"] <- round(ctext@stat[,"expCoi"], 2)

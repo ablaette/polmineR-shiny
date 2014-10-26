@@ -1,44 +1,31 @@
 library(shiny)
 library(polmineR)
 
-partitionObjects <- polmineR.shiny:::.getClassObjects('.GlobalEnv', 'partition')
+# partitionObjects <- polmineR.shiny:::.getClassObjects('.GlobalEnv', 'partition')
+drillingControls <- getFromNamespace('drillingControls', 'polmineR')
 
-.generatePhpRscript <- function(i, sAttributes){
-  functionName <- paste('runCmd', as.character(i), '()', sep='')
-  partitionCmd <- paste(
-      'partition(corpus="PLPRTXT", def=list(',
-      paste(unlist(lapply(names(sAttributes), function(x) paste(x, '="', sAttributes[x],'"', sep=''))), collapse=", "),
-      '), tf=NULL)',
-      sep=''
-    )
-  rscript <- paste(
-    "Rscript",
-    " -e 'library(polmineR)'",
-    " -e 'library(pipeR)'",
-    " -e '", partitionCmd, "'",
-    sep=''
-    )
-  wrappedCode <- paste(
-    '<script>',
-    paste('function ', functionName, ' {', sep=''),
-    paste('exec("', rscript, '");', sep=''),
-    '}',
-    paste('if (isset($_GET["cmd', as.character(i),'"])) {', sep=''),
-    paste(functionName,';', sep=''),
-    '}',
-    '</script>', sep=' '
-    )
-  return(wrappedCode)
+.cgiArguments <- function(sAttr){
+  raw <- paste(unlist(lapply(names(sAttr), function(x) paste(x, sAttr[x], sep="="))), collapse="__")
+  final <- gsub("\\s", "+", raw)
+  return(final)
 }
 
 shinyServer(function(input, output, session) {
+#  loadedPartition <- load(file.path(drillingControls$partitionDir, input$partitionObject, ".RData", sep=""))
+  observe({
+    foo <- input$partitionButton
+    availablePartitions <- gsub("^(.*)\\.RData$", "\\1", list.files(drillingControls$partitionDir))
+    updateSelectInput(session, "partitionObject", choices=availablePartitions)
+  })
+  
   output$query <- renderText({
     paste(
       'Query: "',
       input$node, '"',
-      ' (tf=',
-      as.character(tf(partitionObjects[[input$partitionObject]], input$node)[1, paste(input$pAttribute, "Abs", sep="")]),
-      ')',
+#      ' (tf=',
+#      as.character(tf(partitionObjects[[input$partitionObject]], input$node)[1, paste(input$pAttribute, "Abs", sep="")]),
+#      as.character(tf(loadedPartition, input$node)[1, paste(input$pAttribute, "Abs", sep="")]),
+#      ')',
       sep='')
   })
   output$table <- renderDataTable({
@@ -46,13 +33,15 @@ shinyServer(function(input, output, session) {
     
     isolate(
       kwicObject <- kwic(
-        object=partitionObjects[[input$partitionObject]],
+        object=get(load(paste(drillingControls$partitionDir, "/", input$partitionObject, ".RData", sep=""))),
+#        object=partitionObjects[[input$partitionObject]],
         query=input$node,
         pAttribute=input$pAttribute,
         leftContext=input$leftContext,
         rightContext=input$rightContext,
         collocate=input$collocate,
-        meta=unlist(strsplit(input$meta,","))
+        meta=unlist(strsplit(input$meta,",")),
+        verbose=FALSE
       )
     )
     tab <- kwicObject@table
@@ -61,10 +50,10 @@ shinyServer(function(input, output, session) {
       metaRow <- unlist(lapply(
         c(1:nrow(tab)),
         function(i){
-          sAttributes <- unlist(lapply(tab[i,1:noMetadata], as.character))
-          shownText <- paste(sAttributes, collapse="<br/>")
+          sAttr <- unlist(lapply(tab[i,1:noMetadata], as.character))
+          shownText <- paste(sAttr, collapse="<br/>")
           wrappedText <- paste(
-            '<a href="http://localhost/cgi-bin/tmp.cgi" target="_blank">', shownText, .generatePhpRscript(i, sAttributes), '</a>',
+            '<a href="http://localhost/cgi-bin/R/kwic2fulltext?', .cgiArguments(sAttr), '" target="_blank">', shownText, '</a>',
             sep=''
           )
           return(wrappedText)
@@ -96,23 +85,3 @@ shinyServer(function(input, output, session) {
   )
         )
 })
-
-
-# var shell = new ActiveXObject("WScript.Shell");
-# shell.run("cmd /c dir & pause");
-# jsFunctionDef <- paste("function showFullText", as.character(i),"(){", sep="")
-# jsPart1 <- "
-#   var exec = require('child_process').exec, child;
-#   child = exec('"
-# jsPart2 <- "',
-#     function (error, stdout, stderr) {
-#         console.log('stdout: ' + stdout);
-#         console.log('stderr: ' + stderr);
-#         if (error !== null) {
-#              console.log('exec error: ' + error);
-#         }
-#     });
-#   child();
-#   }
-#   "
-# 
