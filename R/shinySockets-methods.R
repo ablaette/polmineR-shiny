@@ -10,9 +10,9 @@ setMethod("partitionUpdate", "shinySession", function(object, ...){
 })
 
 setGeneric("newPartition", function(object, ...){standardGeneric("newPartition")})
-setMethod("newPartition", "shinySession", function(x, ...){
+setMethod("newPartition", "shinySession", function(object, ...){
   RS.eval(
-    x@sockets[["partition"]],
+    object@sockets[["partition"]],
     shiny::runApp('/Users/blaette/Lab/github/polmineR-shiny/inst/shinyAppPartition', launch.browser=TRUE),
     wait=FALSE
   )
