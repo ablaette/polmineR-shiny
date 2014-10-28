@@ -6,7 +6,7 @@ drillingControls <- getFromNamespace('drillingControls', 'polmineR')
 
 shinyUI(pageWithSidebar(
   
-  headerPanel("Context analysis"),
+  headerPanel("context"),
   
   sidebarPanel(
     actionButton("partitionButton", "refresh partitions"),

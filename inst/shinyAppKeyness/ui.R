@@ -5,7 +5,7 @@ drillingControls <- getFromNamespace('drillingControls', 'polmineR')
 # partitionObjects <- polmineR.shiny:::.getClassObjects('.GlobalEnv', 'partition')
 
 shinyUI(pageWithSidebar(
-  headerPanel("Keyness"),
+  headerPanel("keyness"),
   sidebarPanel(
     actionButton("partitionButton", "refresh partitions"),
     actionButton("goButton", "Go!"),

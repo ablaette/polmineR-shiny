@@ -15,7 +15,7 @@ shinyUI(fluidPage(
       ")
     )),
   
-  headerPanel("KWIC"),
+  headerPanel("kwic"),
   
   sidebarPanel(
     actionButton("partitionButton", "refresh partitions"),

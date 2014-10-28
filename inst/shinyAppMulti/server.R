@@ -9,7 +9,7 @@ shinyServer(function(input, output, session) {
     updateSelectInput(session, "dim", choices=cqi_attributes(p@corpus, 's'))
   })
   data <- reactive({
-    queries <- unlist(strsplit(input$queries, ','))
+    queries <- unlist(strsplit(input$queries, ',\\s*'))
     queries <- vapply(queries, function(x) gsub('^\\s+', '', x), FUN.VALUE="character", USE.NAMES=FALSE)
     queries <- vapply(queries, function(x) gsub('\\s+$', '', x), FUN.VALUE="character", USE.NAMES=FALSE)
     aha <- dispersion(
@@ -21,7 +21,7 @@ shinyServer(function(input, output, session) {
     aha
   })
   output$abs <- renderDataTable({
-    tab <- data()$abs
+    tab <- data()$[[input$relAbs]]
     tab <- cbind(rownames(tab), tab)
     tab
     })
