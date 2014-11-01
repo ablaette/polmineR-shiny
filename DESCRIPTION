@@ -8,7 +8,10 @@ Maintainer: Andreas Blaette <andreas.blaette@uni-due.de>
 Depends:
     polmineR
 Imports:
-    shiny
+    shiny,
+    methods,
+    RSclient,
+    Rserve
 Suggests:
     knitr
 VignetteBuilder: knitr
@@ -18,5 +21,6 @@ Description: Plugin for the polmineR-package to use some GUIs developed using
 License: CC BY-NC-SA 3.0 | file LICENSE
 Collate:
     'polmineR-shiny-package.R'
-    'shiny.R'
+    'shinySession-class.R'
     'utils.R'
+    'shinySession-methods.R'

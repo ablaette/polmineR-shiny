@@ -1,3 +1,6 @@
+#' @import methods
+NULL
+
 #' Package 'polmineR-shiny'
 #' 
 #' A plugin for the polmineR-package

@@ -20,63 +20,61 @@ shinyServer(function(input, output, session) {
         def=sAttr,
         #  def=list(text_year="2012"),
         label=input$label,
-        tf=NULL,
-#        meta=unlist(lapply(lapply(strsplit(input$def, ",\\s"), function(x)strsplit(x,"="))[[1]], function(y)y[1])),
-        meta=unlist(strsplit(input$meta,",\\s*")),
+        tf=input$tf,
+        meta=NULL,
         encoding="latin1",
         method=input$method,
         xml=input$xml,
-        verbose=TRUE
+        mc=input$mc,
+        verbose=FALSE
       )
       if (input$label!="") assign(x=input$label, value=partitionObject, envir=.GlobalEnv)
       setupStatus <<- 1
     })
   })
+  partitionCall <- reactive({
+    paste(
+      'partition(',
+      '"', input$corpus, '", ',
+      'label="', input$label, '", ',
+      'def=list(', input$def, '), ',
+      'tf=', ifelse(
+          is.null(input$tf), 
+          "NULL, ",
+          paste('c(', paste(unlist(lapply(input$tf, function(x) paste('"',x,'"', sep=""))), collapse=", "),'), ', sep="")
+        ),
+      'method="', input$method,'", ',
+      'xml="', input$xml, '"',
+      ')',
+      sep=""
+      )
+  })
   partitionSummary <- reactive({
     input$goButton
-#     isolate({data.frame(
-#       tfTotal=partitionObject@size,
-#       noChunks=nrow(partitionObject@cpos),
-#       noSAttributes=length(partitionObject@sAttributes)
-#       )
-#     })
     isolate({
-      bag <- capture.output(show(partitionObject))
-      paste(bag[2:length(bag)], collapse="\n", sep="\n\n")
+      if (exists("partitionObject") == FALSE){
+        retval <- c("partition not yet set up")
+      } else if (is.null(partitionObject)){
+        retval <- c("setting up the partition failed")
+      } else {
+        bag <- capture.output(show(partitionObject))
+        retval <- paste(bag[2:length(bag)], collapse="\n", sep="\n\n")
+        retval <- paste(retval, "\n\n", partitionCall(), "\n\n")
+      }
+      retval
       })
-  })
-  partitionMetadata <- reactive({
-    input$goButton
-    isolate({
-      partitionObject@metadata$table
-      })
-  })
-  
-  
-#   partitionSummary <- function(partitionObject){
-#     data.frame(
-#       tfTotal=partitionObject@size,
-#       noChunks=nrow(partitionObject@cpos),
-#       noSAttributes=length(partitionObject@sAttributes)
-#     )
-#   }
-#   
-  
-#   checkStatus <- reactive({
-#     if (setupStatus == 1) partitionSummar <<- partitionSummary()
-#   })
-  
+  })  
   output$what <- renderText({
     paste(
       'Set up of partition: ',
       input$label,
       sep='')
   })
+  output$call <- renderText({
+    partitionCall()
+  })
   output$summary <- renderText({
     partitionSummary()
-  })
-  output$metadata <- renderDataTable({
-    partitionMetadata()
   })
  output$saveStatus <- renderText({
    retval <- "object not yet saved"
@@ -87,17 +85,6 @@ shinyServer(function(input, output, session) {
      save(list=c(partitionObject@label), file=filename)
      paste("object saved:", filename)
      })
-#     retval <- reactive({
-#       eventFilter(
-#         input$saveButton, 
-#         {
-#           filename <- paste(drillingControls$partitionDir, "/", input$label, ".RData", sep="")
-#           assign(p@label, p)
-#           save(list=c(p@label), file=filename)
-#           paste("object saved", p@label, p@size, filename)
-#         }
-#     )
     retval
     })
-#  })
 })

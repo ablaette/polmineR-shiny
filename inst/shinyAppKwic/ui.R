@@ -1,7 +1,7 @@
 library(shiny)
 library(polmineR)
 
-drillingControls <- getFromNamespace('drillingControls', 'polmineR')
+drillingControls <- get('drillingControls', '.GlobalEnv')
 # partitionObjects <- polmineR.shiny:::.getClassObjects('.GlobalEnv', 'partition')
 
 shinyUI(fluidPage(
@@ -23,14 +23,14 @@ shinyUI(fluidPage(
     br(),br(),
     selectInput(
       "partitionObject", "Partition:",
-      choices=gsub("^(.*)\\.RData$", "\\1", list.files(drillingControls$partitionDir))
-#      choices=names(partitionObjects)
+      choices=gsub("^(.*)\\.RData$", "\\1", list.files(drillingControls$partitionDir)),
+      selected=drillingControls$defaultPartition
       ),
-    textInput("node", "Node:", value="Suche"),
+    textInput("node", "Node:", value=drillingControls$defaultKwicNode),
     selectInput("pAttribute", "Select p-attribute:", choices=c("word", "pos", "lemma"), selected=drillingControls$pAttribute),
     numericInput("leftContext", "Left context:", value=drillingControls$leftContext),
     numericInput("rightContext", "Right context:", value=drillingControls$rightContext),
-    textInput("collocate", "collocate:", value=""),
+    textInput("collocate", "collocate:", value=drillingControls$defaultKwicCollocate),
     textInput("meta", "Metainformation:", value="text_party,text_date"),
     br(),
     actionButton("goButton", "Go!")
